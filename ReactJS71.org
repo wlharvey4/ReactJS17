@@ -3,8 +3,8 @@
 #+title:Learning ReactJS17
 #+subtitle:{{{version}}} {{{date}}}
 #+author:LOLH
-#+date:2020-12-07 09:05
-#+macro:version Version 0.0.1
+#+date:2020-12-07 09:25
+#+macro:version Version 0.0.2
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -361,13 +361,13 @@ CLOSED: [2020-10-12 Mon 14:12]
  - https://reactjs.org/docs/add-react-to-a-website.html#add-react-in-one-minute
 
  #+cindex:React, add to web page
- 1. Add a DOM container anywhere inside the =<body>= of a web site and give it a
-    unique =id= attribute. This allows React to find the container and display a
-    React component inside  it. You may have as many  independent DOM containers
-    on one  page as  you need. They  should be empty;  React will  place content
-    inside of them.
+   1. Add a DOM  container anywhere inside the =<body>= of a  web site and give
+      it a unique  =id= attribute. This allows React to  find the container and
+      display a React component inside it. You may have as many independent DOM
+      containers on  one page  as you  need. They should  be empty;  React will
+      place content inside of them.
 
- #+begin_src html
+      #+begin_src html
  <!-- ... existing HTML ... -->
 
  <div id="like_button_container"></div>
@@ -375,107 +375,111 @@ CLOSED: [2020-10-12 Mon 14:12]
  <!-- ... existing HTML ... -->
  #+end_src
 
- 2. Add two =<script>= tags for React and ReactDOM.  The third one will load your component code.
- #+cindex:React script tags
- #+begin_src html
-   <body>
-     <!-- ... other HTML ... -->
+   2. Add two =<script>=  tags for React and ReactDOM. The  third one will load
+      your component code.
 
-     <!-- Load React. -->
-     <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+      #+cindex:React script tags
+      #+begin_src html
+     <body>
+       <!-- ... other HTML ... -->
+
+       <!-- Load React. -->
+       <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+       <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+       <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+
+       <!-- Load our React component. -->
+       <script src="like_button.js"></script>
+
+     </body>
+   #+end_src
+
+   3. Create a React component in the file ~like_button.js~.
+
+      #+cindex:React component, create
+      This code defines a React component called =LikeButton=.
+      #+begin_src js
+     'use strict';
+
+     const e = React.createElement;
+
+     class LikeButton extends React.Component {
+       constructor(props) {
+	 super(props);
+	 this.state = { liked: false };
+       }
+
+       render() {
+	 if (this.state.liked) {
+	   return 'You liked this.';
+	 }
+
+	 return e(
+	   'button',
+	   { onClick: () => this.setState({ liked: true }) },
+	   'Like'
+	 );
+       }
+     }
+   #+end_src
+
+      #+cindex:React component, mount
+   4. Mount  the component in  the =<div>= =like_button_container=.  After the
+      starter code, add two lines to  the bottom of ~like_button.js~. These two
+      lines of code find the <div> we added  to our HTML in the first step, and
+      then display our “Like” button React component inside of it.
+
+      #+begin_src js
+     // ... the starter code you pasted ...
+
+     const domContainer = document.querySelector('#like_button_container');
+     ReactDOM.render(e(LikeButton), domContainer);
+   #+end_src
+
+      You have just added the first React component to your website.
+
+      #+cindex:React production script
+      #+cindex:minify script
+   5.  Minify  JavaScript for  production.  Before  deploying your  website  to
+      production, be mindful that  unminified JavaScript can significantly slow
+      down  the page  for  your users.  Use the  following  script sources  for
+      production code:
+
+      #+begin_src html
      <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
      <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+   #+end_src
 
-     <!-- Load our React component. -->
-     <script src="like_button.js"></script>
+   6. Add  JSX. The  quickest way to  try JSX  in your project  is to  add this
+      =<script>= tag to your page:
 
-   </body>
- #+end_src
+      #+cindex:JSX
+      #+begin_src html
+	<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+      #+end_src
 
- 3. Create a React component in the file ~like_button.js~.
- #+cindex:React component, create
- This code defines a React component called =LikeButton=.
- #+begin_src js
- 'use strict';
+      Now you  can use  JSX in  any =<script>=  tag by  adding ~type="text/babel"~
+      attribute to it. Change the "Like" button code as follows:
 
- const e = React.createElement;
+      #+begin_src js
+	// const e = React.createElement;
 
- class LikeButton extends React.Component {
-   constructor(props) {
-     super(props);
-     this.state = { liked: false };
-   }
+	// // Display a "Like" <button>
+	// return e(
+	//   'button',
+	//   { onClick: () => this.setState({ liked: true }) },
+	//   'Like'
+	// );
 
-   render() {
-     if (this.state.liked) {
-       return 'You liked this.';
-     }
+	// Display a "Like" <button>
+	return (
+	    <button onClick={() => this.setState({ liked: true })}>
+	      Like
+	    </button>
+	);
+   #+end_src
 
-     return e(
-       'button',
-       { onClick: () => this.setState({ liked: true }) },
-       'Like'
-     );
-   }
- }
- #+end_src
-
- #+cindex:React component, mount
- 4.  Mount  the component  in  the  =<div>= =like_button_container=.  After  the
-    starter code,  add two lines  to the  bottom of ~like_button.js~.  These two
-    lines of  code find the <div>  we added to our  HTML in the first  step, and
-    then display our “Like” button React component inside of it.
-
- #+begin_src js
-   // ... the starter code you pasted ...
-
-   const domContainer = document.querySelector('#like_button_container');
-   ReactDOM.render(e(LikeButton), domContainer);
- #+end_src
-
- You have just added the first React component to your website.
-
- #+cindex:React production script
- #+cindex:minify script
- 5.   Minify  JavaScript  for  production.  Before  deploying  your  website  to
-    production,  be mindful  that unminified  JavaScript can  significantly slow
-    down  the  page  for  your  users. Use  the  following  script  sources  for
-    production code:
-
- #+begin_src html
- <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
- <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
- #+end_src
-
- 6. Add JSX. The quickest way to try JSX in your project is to add this <script>
-    tag to your page:
-
- #+cindex:JSX
- #+begin_src html
- <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
- #+end_src
- Now  you can  use  JSX  in any  =<script>=  tag  by adding  ~type="text/babel"~
- attribute to it.  Change the "Like" button code as follows:
-
- #+begin_src js
- // const e = React.createElement;
-
- // // Display a "Like" <button>
- // return e(
- //   'button',
- //   { onClick: () => this.setState({ liked: true }) },
- //   'Like'
- // );
-
- // Display a "Like" <button>
- return (
-     <button onClick={() => this.setState({ liked: true })}>
-       Like
-     </button>
- );
- #+end_src
-
- These two code snippets are equivalent. JSX is completely optional.
+      These two code snippets are equivalent. JSX is completely optional.
 
 ** Add JSX and ES2015+ Syntax to a Project Using Babel
 
