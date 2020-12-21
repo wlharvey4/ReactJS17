@@ -4,7 +4,7 @@
 #+subtitle:{{{version}}} {{{date}}}
 #+author:LOLH
 #+date:2020-12-21 10:34
-#+macro:version Version 0.0.6
+#+macro:version Version 0.0.7
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
