@@ -3,8 +3,8 @@
 #+title:Learning ReactJS17
 #+subtitle:{{{version}}} {{{date}}}
 #+author:LOLH
-#+date:2020-12-21 10:31
-#+macro:version Version 0.0.4
+#+date:2020-12-21 10:33
+#+macro:version Version 0.0.5
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
