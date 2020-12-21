@@ -3,8 +3,8 @@
 #+title:Learning ReactJS17
 #+subtitle:{{{version}}} {{{date}}}
 #+author:LOLH
-#+date:2020-12-21 09:05
-#+macro:version Version 0.0.3
+#+date:2020-12-21 10:31
+#+macro:version Version 0.0.4
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -546,6 +546,201 @@ changes. You just added a production-ready JSX setup to your project.
 #+end_src
 
 
+* Pro React
+  - [[https://github.com/Apress/pro-react][Pro React GitHub Files]]
+  - [[file:resources/pro-react-master][pro-react-master directory]]
+
+** Chapter One---Getting Started
+*** Building Your First React App
+
+  #+cindex:component
+- React Component ::
+
+  At the bare  minimum, a React component  is simply a JavaScript  class with a
+  ~render~ method that returns a description of the component’s UI:
+
+  #+begin_src js
+    class Hello extends React.Component {
+	render() {
+	    return (
+	      <h1>Hello World</h1>
+	    )
+	}
+    }
+  #+end_src
+
+  #+cindex:JSX
+- JSX ::
+
+  You probably noticed the  HTML tags in the middle of  the JavaScript code. As
+  mentioned, React has a syntax extension to JavaScript called JSX that lets us
+  write XML  (and consequently HTML) inline  with code. JSX is  optional but it
+  has  been widely  accepted  as the  standard  way of  defining  UIs in  React
+  components because  of its declarative  syntax, expressiveness, and  the fact
+  that it  gets converted  to plain  JavaScript function  calls, means  that it
+  doesn’t alter the language semantics.
+
+  #+cindex:transformation, JSX
+  #+cindex:transpilation
+  The important thing to consider now is that React requires a “transformation”
+  step  (or  transpilation,  if  you  will) where  JSX  gets  transformed  into
+  JavaScript.
+
+*** React Development Workflow
+In even the most basic scenarios, we  want a development workflow that allow us
+to do the following:
+
+ - Write JSX and transform it into regular JavaScript on the fly
+ - Write code in a module pattern
+ - Manage dependencies
+ - Bundle JavaScript files and use source maps for debugging
+
+With this in mind, the basic project structure for a React project contains the
+following:
+
+ 1. A *source folder*, to contain all your JavaScript modules.
+
+ 2. An  ~index.html~ file.
+
+    In  React applications,  the HTML  page  tends to  be almost  empty. It  is
+    responsible only for  loading the application’s JavaScript  and providing a
+    =div= (or any other element, actually) that  is used by React to render the
+    application’s components into.
+
+ 3. A ~package.json~ file.
+
+    The ~package.json~ is  a standard ~npm~ =manifest= file  that holds various
+    information about the project, such  a
+    - name,
+    - description,
+    - information about the author, etc.
+    - It lets  the developer specify  dependencies (that can  get automatically
+      downloaded and installed) and define script tasks.
+
+    #+cindex:module, packager, build tool
+ 4. A  *module  packager*  or  *build  tool*,  which  will  be  used  for  JSX
+    transformation and module/dependency bundling.
+
+    The usage of *modules* helps organize  JavaScript code by splitting it into
+    multiple  files,  each one  declaring  its  own dependencies.  The  *module
+    bundler* then automatically  packs everything together in  the correct load
+    order.
+
+    #+cindex:webpack
+    There are  a lot  of tools  that handle  this intermediary  step, including
+     - ~Grunt~,
+     - ~Gulp~,
+     - ~Brunch~,
+     - ~Webpack~
+
+    among others. You can easily find recipes  for React in any of those tools,
+    but in general, the React community  has adopted ~webpack~ as the preferred
+    tool for this job. At its core, ~webpack~ is a *module bundler*, but it can
+    also  put  the source  code  through  *loaders*  that can  /transform/  and
+    /compile/ it.
+
+
+Here is an outline of a minimum project files and folders structure:
+
+- Project
+  - ~source/~
+    - ~App.js~
+  - ~index.html~
+  - ~package.json~
+  - ~webpack.config.js~
+
+**** React App Boilerplate
+To keep focus  on learning the React  library, a React app  boilerplate pack is
+provided with this book. The boilerplate project comes with all the basic files
+and configurations  needed to  start developing immediately.
+
+After downloading it,  all you have to  do is
+- install the  dependencies and
+- run the development  server to test  the project  in the browser.
+- To automatically install all the  dependencies, open the terminal or command
+  prompt and run
+  : npm install
+- To run the development server, simply type
+  : npm start.
+
+
+***** Objective
+This boilerplate  is purposefully simple  to show  the minimal setup  needed to
+create React projects  with Webpack and Babel.  It aims to be  a starting point
+for learning  React, with  low cognitive  load and as  such avoids  having many
+separate config  files and  advanced configuration  options, while  providing a
+solid foundation for new React projects.
+
+***** Usage
+1. Create a clone of the source code
+   : git clone git@github.com:pro-react/react-app-boilerplate.git
+2. Enter the boilerplate source directory
+   : cd react-app-boilerplate
+3. Install its dependencies
+   : npm install
+4. Start the application in development mode
+   : npm start
+5. Open http://localhost:8080 in your browser.
+   - =Static= files are  served from the ~public~ folder,
+   - /project/ JavaScript files are bundled from the ~app~ folder.
+6. Build for production
+   : npm run build
+   - This will generate a minimized ~bundle.js~ file on the ~public~ folder.
+
+***** Missing Features
+This  boilerplate  focuses  solely  on  transforming  and  bundling  javascript
+files---all  other static  files are  served  directly from  the public  folder
+without any processing.
+
+While useful  for learning React, this  setup doesn't use Webpack  and Babel in
+their  full capabilities---which  include
+- transforming  and bundling  projects assets (such as stylesheets),
+- modularizing CSS,
+- hot reloading and etc.
+
+***** Dependencies
+- React & React-DOM
+- Webpack & webpack-dev-server
+- Babel Core
+- Babel Loader (With "es2015" and "react" presets)
+
+**** Advanced Boilerplate
+- [[https://github.com/pro-react/react-app-advanced-boilerplate][Advanced Boilerplate on GitHub]]
+
+"React project template with advanced Webpack setup."
+
+***** Objective
+While the  original Pro React  book App  Boilerplate is purposefully  simple to
+show the minimal setup needed to  create React projects with Webpack and Babel,
+this  is a  more complete  setup.  It is  based  on the  Appendix A  (entirelly
+dedicated  to Webpack)  and features
+- JavaScript and  CSS bundling,
+- Hot Module Replacement,
+- automatic HTML generation  and
+- a separate production configuration with optimization and caching.
+
+***** Usage
+1. Clone this repository
+   : git clone git@github.com:pro-react/react-app-advanced-boilerplate.git
+2. Install
+   : npm install
+3. Start the application in development mode
+   : npm start
+   - Open http://localhost:8080 in your browser.
+   - Static files are served from the ~public~ folder,
+   - project JavaScript files are bundled from the ~app~ folder.
+4. Build for production
+   : npm run build
+   - This will generate a minimized ~bundle.js~ file in the ~build~ folder.
+
+**** Facebook's Create React App
+Facebook released a  tool to create React Apps with  no need for configurations
+or boilerplates. If you're just begining to  learn React, you might want to use
+~create-react-app~  instead  of  using  this boilerplate  project.  Behind  the
+scenes, create-react-app uses Webpack and Babel.
+
+You might still want to use this boilerplate if you want to see how Webpack and
+Babel can be manually configured in a project.
 
 * Build Tools
 :PROPERTIES:
