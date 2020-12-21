@@ -3,8 +3,8 @@
 #+title:Learning ReactJS17
 #+subtitle:{{{version}}} {{{date}}}
 #+author:LOLH
-#+date:2020-12-07 09:25
-#+macro:version Version 0.0.2
+#+date:2020-12-21 09:05
+#+macro:version Version 0.0.3
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -357,6 +357,7 @@ CLOSED: [2020-10-12 Mon 14:12]
 - [[https://reactjs.org/blog/2020/10/20/react-v17.html][ReactJS17 Blog]]
 - [[https://reactjs.org/versions][React Versions]]
 - [[https://github.com/facebook/react/releases][React on GitHub]]
+
 ** Adding React to a Web Page
  - https://reactjs.org/docs/add-react-to-a-website.html#add-react-in-one-minute
 
@@ -368,30 +369,30 @@ CLOSED: [2020-10-12 Mon 14:12]
       place content inside of them.
 
       #+begin_src html
- <!-- ... existing HTML ... -->
+	<!-- ... existing HTML ... -->
 
- <div id="like_button_container"></div>
+	<div id="like_button_container"></div>
 
- <!-- ... existing HTML ... -->
- #+end_src
+	<!-- ... existing HTML ... -->
+      #+end_src
 
    2. Add two =<script>=  tags for React and ReactDOM. The  third one will load
       your component code.
 
       #+cindex:React script tags
       #+begin_src html
-     <body>
-       <!-- ... other HTML ... -->
+	<body>
+	  <!-- ... other HTML ... -->
 
-       <!-- Load React. -->
-       <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
-       <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
-       <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+	  <!-- Load React. -->
+	  <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+	  <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+	  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
 
-       <!-- Load our React component. -->
-       <script src="like_button.js"></script>
+	  <!-- Load our React component. -->
+	  <script src="like_button.js"></script>
 
-     </body>
+	</body>
    #+end_src
 
    3. Create a React component in the file ~like_button.js~.
@@ -399,29 +400,29 @@ CLOSED: [2020-10-12 Mon 14:12]
       #+cindex:React component, create
       This code defines a React component called =LikeButton=.
       #+begin_src js
-     'use strict';
+	'use strict';
 
-     const e = React.createElement;
+	const e = React.createElement;
 
-     class LikeButton extends React.Component {
-       constructor(props) {
-	 super(props);
-	 this.state = { liked: false };
-       }
+	class LikeButton extends React.Component {
+	  constructor(props) {
+	    super(props);
+	    this.state = { liked: false };
+	  }
 
-       render() {
-	 if (this.state.liked) {
-	   return 'You liked this.';
-	 }
+	  render() {
+	    if (this.state.liked) {
+	      return 'You liked this.';
+	    }
 
-	 return e(
-	   'button',
-	   { onClick: () => this.setState({ liked: true }) },
-	   'Like'
-	 );
-       }
-     }
-   #+end_src
+	    return e(
+	      'button',
+	      { onClick: () => this.setState({ liked: true }) },
+	      'Like'
+	    );
+	  }
+	}
+      #+end_src
 
       #+cindex:React component, mount
    4. Mount  the component in  the =<div>= =like_button_container=.  After the
@@ -504,8 +505,9 @@ changes. You just added a production-ready JSX setup to your project.
 
    : npx babel --watch src --out-dir . --presets react-app/prod
 
-   ~npx~ is a package runner tool that  comes with ~npm 5.2+~. See this [[https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b][article
-   describing npx]].
+   ~npx~ is a package runner tool that  comes with ~npm 5.2+~.
+
+   See this [[https://medium.com/@maybekatz/introducing-npx-an-npm-package-runner-55f7d4bd282b][article describing npx]].
 
 4. Now  create a file called  ~src/like_button.js~ with this JSX  starter code,
    the  watcher will  create  a preprocessed  ~like_button.js~ file  containing
