@@ -3,8 +3,8 @@
 #+title:Learning ReactJS17
 #+subtitle:{{{version}}} {{{date}}}
 #+author:LOLH
-#+date:2020-12-21 10:34
-#+macro:version Version 0.0.7
+#+date:2020-12-21 22:14
+#+macro:version Version 0.0.8
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -741,7 +741,159 @@ scenes, create-react-app uses Webpack and Babel.
 
 You might still want to use this boilerplate if you want to see how Webpack and
 Babel can be manually configured in a project.
+* Build Tools
+** Node Packages
 
+#+cindex:package
+- package ::
+
+  A  *package* is  a  /folder tree/  described by  a  ~package.json~ file.  The
+  *package* consists of  the folder containing the ~package.json~  file and all
+  subfolders until the next folder containing another ~package.json~ file, or a
+  folder named ~node_modules~.
+
+  Package authors should  include the "type" field, even in  packages where all
+  sources are  =CommonJS=. Being explicit  about the  type of the  package will
+  future-proof the package in case the  default type of ~Node.j~s ever changes,
+  and it will also make things easier  for build tools and loaders to determine
+  how the files in the package should be interpreted.
+
+- ES Modules ::
+
+  ~Node.js~ will treat  the following as *ES modules* when  passed to ~node~ as
+  the initial input, or when referenced by ~import~ statements within ES module
+  code:
+
+  - Files ending in ~.mjs~.
+
+  - Files ending in ~.js~ when  the nearest parent ~package.json~ file contains
+    a top-level "type" field with a value of "module".
+
+  - Strings passed in as  an argument to ~--eval~, or piped  to node via =STDIN=,
+    with the flag ~--input-type=module~.
+
+- CommonJS Modules ::
+
+  ~Node.js~ will treat as =CommonJS= all other forms of input. This behavior is
+  to preserve backward compatibility. However, now that ~Node.js~ supports both
+  =CommonJS= and  =ES= modules, it  is best  to be explicit  whenever possible.
+  ~Node.js~ will treat the following as =CommonJS= when passed to ~node~ as the
+  initial input,  or when  referenced by ~import~  statements within  ES module
+  code:
+
+  - Files ending in ~.cjs~.
+
+  - Files ending in ~.js~ when  the nearest parent ~package.json~ file contains
+    a top-level field "type" with a value of "commonjs".
+
+  - files ending with ~.js~ files  where the nearest parent ~package.json~ file
+    contains no top-level "type" field,
+
+  - Strings passed  in as  an argument  to ~--eval~ or  ~--print~, or  piped to
+    ~node~ via =STDIN=, with the flag ~--input-type=commonjs~.
+
+  - string input without the flag ~--input-type~
+*** Package Entry Points
+In a  package’s ~package.json~ file, two  fields can define entry  points for a
+package:
+
+ - "main" :: The "main" field is  supported in all versions of ~Node.js~; thus,
+   it can be  used as a fallback  for legacy versions of ~Node.js~  that do not
+   support the "exports" field.
+
+   To set the =main= entry point for  a package, it is advisable to define both
+   "exports" and "main" in the package’s ~package.json~ file:
+
+   #+begin_src js
+     {
+       "main": "./main.js",
+       "exports": "./main.js"
+     }
+   #+end_src
+
+   When  the "exports"  field  is  defined, all  subpaths  of  the package  are
+   encapsulated and  no longer  available to  importers. This  encapsulation of
+   exports provides more reliable guarantees about package interfaces for tools
+   and  when  handling semver  upgrades  for  a package.  It  is  not a  strong
+   encapsulation since a direct require of  any absolute subpath of the package
+   such  as ~require('/path/to/node_modules/pkg/subpath.js')~  will still  load
+   ~subpath.js~.
+
+ - "exports" ::
+
+   The "exports" field provides an alternative to "main" where the package main
+   entry point can be defined  while also encapsulating the package, preventing
+   any  other   entry  points   besides  those   defined  in   "exports".  This
+   encapsulation allows module  authors to define a public  interface for their
+   package. If both "exports" and "main" are defined, the "exports" field takes
+   precedence over  "main". It is  best to  explicitly specify entry  points so
+   that the package’s public API is well-defined.
+
+ - subpath exports ::
+
+   When using  the "exports" field, custom  subpaths can be defined  along with
+   the  =main= entry  point  by treating  the  =main= entry  point  as the  "."
+   subpath:
+
+   #+begin_src js
+     {
+       "main": "./main.js",
+       "exports": {
+	 ".": "./main.js",
+	 "./submodule": "./src/submodule.js"
+       }
+     }
+   #+end_src
+
+   Now only the defined subpath in "exports" can be imported by a consumer:
+
+   : import submodule from 'es-module-package/submodule';
+   : // Loads ./node_modules/es-module-package/src/submodule.js
+
+   While other subpaths will error.
+*** Node.js package.json field definitions
+This section  describes the fields used  by the ~Node.js~ runtime.  Other tools
+(such as  ~npm~) use additional fields  which are ignored by  ~Node.js~ and not
+documented here.
+
+ - =name= :: (string)
+
+   Relevant when  using named imports  within a  package. Also used  by package
+   managers as the name of the package.
+
+ - =main= :: (string)
+
+   The default  module when loading the  package, if exports is  not specified,
+   and  in versions  of ~Node.js~  prior to  the introduction  of exports.  The
+   "main" field defines  the script that is used when  the package directory is
+   loaded via ~require()~. Its value is a path.
+
+   : require('./path/to/directory'); // This resolves to ./path/to/directory/main.js.
+
+ - =type= :: (string)
+
+   The package  type determining whether to  load ~.js~ files as  =CommonJS= or
+   =ES= modules. The "type" field defines the module format that ~Node.js~ uses
+   for all  ~.js~ files  that have  that ~package.json~  file as  their nearest
+   parent.
+
+   The /nearest parent  ~package.json~/ is defined as  the first ~package.json~
+   found when searching in the current  folder, that folder’s parent, and so on
+   up until a ~node_modules~ folder or the volume root is reached.
+
+ - =exports= :: (Object | string | string[])
+
+   Package  exports  and  conditional   exports.  When  present,  limits  which
+   submodules can be loaded from within the package. The "exports" field allows
+   defining the entry  points of a package when imported  by name loaded either
+   via a ~node_modules~ lookup or a self-reference to its own name.
+
+ - =imports= :: (Object)
+
+   Package imports, for use by modules within the package itself.
+
+** Webpack
+** Babel
 * Build Tools
 :PROPERTIES:
 :appendix: t
