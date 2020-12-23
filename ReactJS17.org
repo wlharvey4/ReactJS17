@@ -3,8 +3,8 @@
 #+title:Learning ReactJS17
 #+subtitle:{{{version}}} {{{date}}}
 #+author:LOLH
-#+date:2020-12-21 23:03
-#+macro:version Version 0.0.9
+#+date:2020-12-22 22:53
+#+macro:version Version 0.0.10
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -741,7 +741,7 @@ scenes, create-react-app uses Webpack and Babel.
 
 You might still want to use this boilerplate if you want to see how Webpack and
 Babel can be manually configured in a project.
-* React Build Tools
+* React Development Tools
 ** Node Packages
 
 #+cindex:package
@@ -891,6 +891,7 @@ documented here.
  - =imports= :: (Object)
 
    Package imports, for use by modules within the package itself.
+*** Node.js Modules
 ** NPM Packages
 - [[https://docs.npmjs.com/packages-and-modules][NPM Packages Documentation]]
 
@@ -1025,7 +1026,518 @@ the command line, run:
 : npm install npm@latest -g
 
 ** Webpack
+- [[https://webpack.js.org][Webpack Home]]
+
+*** Webpack Getting Started
+- [[https://webpack.js.org/guides/getting-started/][Webpack Getting Started Page]]
+
+~webpack~  is used  to  compile  JavaScript modules.  Once  installed, you  can
+interact with webpack either from its CLI or API.
+
+- [[https://webpack.js.org/api/cli/][CLI Site]]
+- [[https://webpack.js.org/api/node/][API Site]]
+- [[https://webpack.js.org/concepts/][Webpack Concepts]]
+
+*** Webpack Concepts
+- [[https://webpack.js.org/concepts/][Webpack Concepts Site]]
+
+~webpack~ is a *static module bundler* for modern JavaScript applications. When
+~webpack~ processes your application, it internally builds a /dependency graph/
+which maps every module your project needs and generates one or more bundles.
+
+**** Webpack Modules
+~Node.js~ has supported modular programming  almost since its inception. On the
+web, however, support for modules has been slow to arrive. Multiple tools exist
+that support  modular JavaScript  on the  web, with a  variety of  benefits and
+limitations. ~webpack~ builds on lessons learned from these systems and applies
+the concept of modules to any file in your project.
+
+In  contrast  to  ~Node.js~  modules,   ~webpack~  modules  can  express  their
+dependencies in a variety of ways. ~webpack~ supports to following module types
+natively:
+
+- ES Modules :: An =ES2015= ~import~ statement
+- CommonJS Modules :: A =CommonJS= ~require()~ statement
+- AMD Modules :: An =AMD= ~define~ and ~require~ statement
+- WebAssembly Modules :: An =@import= statement inside of a css/sass/less file.
+- Assets ::   An image url in  a stylesheet ~url(...)~ or  HTML =<img src=...>=
+  file.
+
+***** Loaders
+~webpack~ supports modules written in  a variety of languages and preprocessors
+via  *loaders*.  *Loaders* describe  to  ~webpack~  how to  process  non-native
+modules  and  include  these  dependencies into  your  bundles.  The  ~webpack~
+community  has built  loaders  for  a wide  variety  of  popular languages  and
+language processors, including:
+
+- CoffeeScript
+- TypeScript
+- ESNext (Babel)
+- Sass
+- Less
+- Stylus
+- Elm
+
+**** Entry
+
+#+cindex:entry point
+An *entry point* indicates which module  ~webpack~ should use to begin building
+out  its internal  dependency  graph.  ~webpack~ will  figure  out which  other
+modules and libraries that entry point depends on (directly and indirectly).
+
+By default its  value is ~./src/index.js~, but you can  specify a different (or
+multiple  entry  points)  by  setting  an =entry=  property  in  the  ~webpack~
+configuration.
+
+#+begin_src js
+  // shorthand
+  module.exports = {
+    entry: './path/to/my/entry/file.js'
+  };
+
+  // object
+  module.exports = {
+    entry: {
+      main: './path/to/my/entry/file.js'
+    }
+  };
+
+  // scalable object
+  module.exports = {
+    entry: {
+      app: './src/app.js',
+      adminApp: './src/adminApp.js'
+    }
+  };
+
+  // multi-main entry
+  module.exports = {
+    entry: [ 
+      './src/file_1.js',
+      './src/file_2.js'
+    ],
+    output: {
+      filename: 'bundle.js'
+    }
+  };
+#+end_src
+
+**** Output
+The =output= property tells ~webpack~ where  to emit the bundles it creates and
+how to name these files.
+
+It defaults  to ~./dist/main.js~ for the  main output file and  to the ~./dist~
+folder for any other generated file.
+
+You can configure this  part of the process by specifying  an =output= field in
+your configuration. The  minimum requirement for the =output=  property in your
+~webpack~  configuration is  to  set its  value  to an  object  and provide  an
+=output.filename= to  use for  the =output=  file(s). This  configuration would
+output a single ~bundle.js~ file into the ~dist~ directory.
+
+#+begin_src js
+  // minimum
+  module.exports = {
+    output: {
+      filename: 'bundle.js',
+    }
+  };
+
+  // minimum with path
+  const path = require('path');
+
+  module.exports = {
+    entry: './path/to/my/entry/file.js',
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'my-first-webpack.bundle.js'
+    }
+  };
+#+end_src
+
+If your  configuration creates  more than  a single  "chunk" (as  with multiple
+entry points  or when  using plugins like  CommonsChunkPlugin), you  should use
+/substitutions/ to ensure that each file has a unique name.
+
+#+begin_src js
+  module.exports = {
+    entry: {
+      app: './src/app.js',
+      search: './src/search.js'
+    },
+    output: {
+      filename: '[name].js',
+      path: __dirname + '/dist'
+    }
+  };
+
+  // writes to disk: ./dist/app.js, ./dist/search.js
+#+end_src
+
+**** Loaders
+*Loaders* allow webpack  to process other types of files  and convert them into
+valid  modules that  can  be consumed  by  your application  and  added to  the
+dependency graph.
+
+At a high level, loaders have two properties in your webpack configuration:
+
+1. =test= property:  identifies which file or files should be transformed.
+2.  =use=  property:   indicates  which  loader  should  be  used   to  do  the
+   transforming.
+
+#+begin_src js
+  const path = require('path');
+
+  module.exports = {
+    output: {
+      filename: 'my-first-webpack.bundle.js'
+    },
+    module: {
+      rules: [
+	{ test: /\.txt$/, use: 'raw-loader' }
+      ]
+    }
+  };
+#+end_src
+
+The configuration above has defined a =rules= property for a single module with
+two required  properties: =test= and  =use=. This tells webpack's  compiler the
+following:
+
+- When ~webpack~ finds  a ~.txt~ file inside a ~require~  or ~import~ statement
+  (a  module) use  the =raw-loader=  to transform  it before  adding it  to the
+  bundle.
+- It is  important to  remember that  when defining  =rules= in  your ~webpack~
+  ~config~, you  are defining  them under =module.rules=  and not  =rules=. For
+  your benefit, ~webpack~ will warn you if this is done incorrectly.
+
+**** Plugins
+Plugins  can  be leveraged  to  perform  a wider  range  of  tasks like  bundle
+optimization, asset management and injection of environment variables.
+
+In  order to  use a  plugin,  you need  to ~require()~  it  and add  it to  the
+=plugins= array.
+
+Most  plugins are  customizable through  options. Since  you can  use a  plugin
+multiple times in a configuration for different purposes, you need to create an
+instance of it by calling it with the ~new~ operator.
+
+#+begin_src js
+  const HtmlWebpackPlugin = require('html-webpack-plugin'); //installed via npm
+  const webpack = require('webpack'); //to access built-in plugins
+
+  module.exports = {
+    module: {
+      rules: [
+	{ test: /\.txt$/, use: 'raw-loader' }
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({template: './src/index.html'})
+    ]
+  };
+#+end_src
+
+In the example above, the ~html-webpack-plugin~ generates an HTML file for your
+application by injecting automatically all your generated bundles.
+
+**** Mode
+By setting  the mode parameter to  either
+- =development=,
+- =production= or
+- =none=,
+
+you  can  enable  webpack's  built-in optimizations  that  correspond  to  each
+environment. The default value is =production=.
+
+#+begin_src js
+  module.exports = {
+    mode: 'production'
+  };
+#+end_src
+
 ** Babel
+- [[https://babeljs.io][Babel Home]]
+
+"Babel is a JavaScript compiler"
+
+Babel is a toolchain that is mainly  used to convert ECMAScript 2015+ code into
+a backwards compatible  version of JavaScript in current and  older browsers or
+environments.
+
+Babel:
+- transforms syntax
+- polyfills missing features in a target environment
+- transforms source code
+
+#+cindex:transformer
+#+cindex:plugin
+Babel  has  support  for  the  latest version  of  JavaScript  through  /syntax
+transformers/. These /plugins/  allow you to use new syntax,  right now without
+waiting for browser support.
+
+#+cindex:preset
+Babel can convert JSX syntax! Check out our /React preset/ to get started.
+
+#+cindex:type annotations
+Babel can  strip out /type  annotations/! Check out  either our Flow  preset or
+TypeScript preset to get started.
+
+#+cindex:plugin
+Babel is built out of /plugins/. A  plugin is just a function. Compose your own
+transformation pipeline using existing plugins or  write your own. Easily use a
+set of plugins by using or creating a preset.
+
+*** Overview
+How to compile JavaScript application code that uses ES2015+ syntax into code
+that works in current browsers and polyfill missing features.
+
+1. Install Babel
+   : npm install --save-dev @babel/core @babel/cli @babel/preset-env
+   : npm install --save @babel/polyfill
+
+2. Create a config  file ~babel.config.json~ in the root of  your project ( >
+   =v7.8.0=)
+   #+begin_src js
+     {
+       "presets": [
+	 [
+	   "@babel/env",
+	   {
+	     "targets": {
+	       "edge": "17",
+	       "firefox": "60",
+	       "chrome": "67",
+	       "safari": "11.1",
+	     },
+	     "useBuiltIns": "usage",
+	     "corejs": "3.6.5",
+	   }
+	 ]
+       ]
+     }
+   #+end_src
+
+   Or ~babel.config.js~ if you are using an older Babel version
+
+   #+begin_src js
+     const presets = [
+       [
+	 "@babel/env",
+	 {
+	   targets: {
+	     edge: "17",
+	     firefox: "60",
+	     chrome: "67",
+	     safari: "11.1",
+	   },
+	   useBuiltIns: "usage",
+	   "corejs": "3.6.4",
+	 },
+       ],
+     ];
+
+     module.exports = { presets };'
+   #+end_src
+
+3. Run this command to compile all your code from the ~src~ directory to ~lib~:
+
+   : ./node_modules/.bin/babel src --out-dir lib
+   : npx babel src --out-dir lib
+
+*** Babel CLI
+All the Babel modules you'll need are published as separate npm packages scoped
+under ~@babel~ (since version 7). This  modular design allows for various tools
+each designed  for a specific  use case. Here  we'll look at  ~@babel/core~ and
+~@babel/cli~.
+
+~@babel/cli~ is a tool  that allows you to use babel  from the terminal. Here's
+the installation command and a basic usage example:
+
+: npm install --save-dev @babel/core @babel/cli
+: ./node_modules/.bin/babel src --out-dir lib
+
+This will  parse all  the JavaScript  files in the  ~src~ directory,  apply any
+transformations  we  have  told it  to,  and  output  each  file to  the  ~lib~
+directory.  Since we  haven't told  it to  apply any  transformations yet,  the
+output  code  will  be identical  to  the  input  (exact  code styling  is  not
+preserved). We  can specify  what transformations  we want  by passing  them as
+options.
+
+We used  the =--out-dir=  option above. You  can view the  rest of  the options
+accepted by the cli tool by running it with =--help=. But the most important to
+us right now are =--plugins= and =--presets=.
+
+*** Plugins and Presets
+Transformations  come in  the form  of  *plugins*, which  are small  JavaScript
+programs that instruct Babel on how to carry out transformations to the code.
+
+To transform =ES2015+=  syntax into =ES5= we can rely  on official plugins like
+~@babel/plugin-transform-arrow-functions~:
+
+: npm install --save-dev @babel/plugin-transform-arrow-functions
+: ./node_modules/.bin/babel src --out-dir lib \
+:      --plugins=@babel/plugin-transform-arrow-functions
+
+Now any  arrow functions in  our code will  be transformed into  ES5 compatible
+function expressions.
+
+But we also have other =ES2015+= features in our code that we want transformed.
+Instead of  adding all the plugins  we want one by  one, we can use  a "preset"
+which is just a pre-determined set of plugins.
+
+For our use case here, there's an excellent preset named =env=.
+
+: npm install --save-dev @babel/preset-env
+: ./node_modules/.bin/babel src --out-dir lib \
+:      --presets=@babel/env
+
+Without  any configuration,  this preset  will include  all plugins  to support
+modern JavaScript (=ES2015=, =ES2016=, etc.). But presets can take options too.
+Rather than  passing both =cli= and  =preset= options from the  terminal, let's
+look at another way of passing options: configuration files.
+
+#+cindex:configuration, babel
+#+pindex:babel.config.json
+Create a file  called ~babel.config.json~ (requires v7.8.0 and  above) with the
+following content:
+
+#+begin_src js
+  {
+  "presets": [
+    [
+    "@babel/env",
+      {
+	"targets": {
+	  "edge": "17",
+	  "firefox": "60",
+	  "chrome": "67",
+	  "safari": "11.1"
+	  }
+	}
+      ]
+    ]
+  }
+#+end_src
+
+Now the  =env= preset will only  load transformation plugins for  features that
+are not available in our target browsers.  We're all set for syntax.
+
+*** Polyfills
+Directly  including  core-js/stable  (to   polyfill  ECMAScript  features)  and
+regenerator-runtime/runtime (needed to use transpiled generator functions):
+
+: import "core-js/stable";
+: import "regenerator-runtime/runtime";
+
+This  means you  can  use new  built-ins like  =Promise=  or =WeakMap=,  static
+methods   like  ~Array.from~   or   ~Object.assign~,   instance  methods   like
+~Array.prototype.includes~,  and generator  functions  (when  used alongside  the
+regenerator plugin).  The polyfill adds to  the global scope as  well as native
+prototypes like =String= in order to do this.
+
+We're using the =env= preset which has  a "useBuiltIns" option that when set to
+"usage" will practically apply the  last optimization mentioned above where you
+only include  the polyfills you  need. With  this new option  the configuration
+changes like this:
+
+#+begin_src js
+  {
+    "presets": [
+      [
+	"@babel/env",
+	{
+	  "targets": {
+	    "edge": "17",
+	    "firefox": "60",
+	    "chrome": "67",
+	    "safari": "11.1",
+	  },
+	  "useBuiltIns": "usage",
+	}
+      ]
+    ]
+  }
+#+end_src
+
+Babel will  now inspect  all your code  for features that  are missing  in your
+target environments and include only the required polyfills.
+
+*** Configuration
+**** babel.config.json
+Create a file called ~babel.config.json~ with the following content at the root
+of your project (where the ~package.json~ is).
+
+#+begin_src js
+  // json
+  {
+    "presets": [...],
+    "plugins": [...]
+  }
+
+  // js
+
+  module.exports = function (api) {
+    api.cache(true);
+
+    const presets = [ ... ];
+    const plugins = [ ... ];
+
+    return {
+      presets,
+      plugins
+    };
+  }
+#+end_src
+**** .babelrc.json
+
+Create  a  file called  ~.babelrc.json~  with  the  following content  in  your
+project.
+
+#+begin_src js
+  {
+    "presets": [...],
+    "plugins": [...]
+  }
+#+end_src
+
+**** package.json
+Alternatively,  you can  choose  to specify  your  ~.babelrc.json~ config  from
+within ~package.json~ using the =babel= key like so:
+
+#+begin_src js
+  {
+    "name": "my-package",
+    "version": "1.0.0",
+    "babel": {
+      "presets": [ ... ],
+      "plugins": [ ... ],
+    }
+  }
+#+end_src
+
+**** JavaScript configuration files
+You  can  also  write   ~babel.config.json~  and  ~.babelrc.json~  files  using
+JavaScript:
+
+#+begin_src js
+  const presets = [ ... ];
+  const plugins = [ ... ];
+
+  module.exports = { presets, plugins };
+#+end_src
+
+*** Using the CLI
+: babel --plugins @babel/plugin-transform-arrow-functions script.js
+
+*** Using the API---@babel/core
+#+begin_src js
+  require("@babel/core").transform("code", {
+    plugins: ["@babel/plugin-transform-arrow-functions"]
+  });
+#+end_src
+
+** Testing
 * Build Tools
 :PROPERTIES:
 :appendix: t
