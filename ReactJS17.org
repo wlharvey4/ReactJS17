@@ -3,8 +3,8 @@
 #+title:Learning ReactJS17
 #+subtitle:{{{version}}} {{{date}}}
 #+author:LOLH
-#+date:2020-12-22 23:10
-#+macro:version Version 0.0.11
+#+date:2020-12-23 09:46
+#+macro:version Version 0.0.12
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1605,10 +1605,211 @@ Object literals are extended to
   #+end_src
 
 ** Template Strings
+Template  strings provide  syntactic sugar  for constructing  strings. This  is
+similar to string interpolation features in Perl, Python and more.
+
+#+begin_src js
+  // Basic literal string creation
+  `This is a pretty little template string.`
+
+  // Multiline strings
+  `In ES5 this is
+   not legal.`
+
+  // Interpolate variable bindings
+  var name = "Bob", time = "today";
+  `Hello ${name}, how are you ${time}?`
+
+  // Unescaped template strings
+  String.raw`In ES5 "\n" is a line-feed.`
+
+  // Construct an HTTP request prefix is used to interpret the replacements and construction
+  GET`http://foo.org/bar?a=${a}&b=${b}
+      Content-Type: application/json
+      X-Credentials: ${credentials}
+      { "foo": ${foo},
+	"bar": ${bar}}`(myOnReadyStateChangeHandler);
+#+end_src
+
 ** Destructuring
+Destructuring allows binding using pattern  matching, with support for matching
+arrays  and objects.  Destructuring is  fail-soft, similar  to standard  object
+lookup foo["bar"], producing undefined values when not found.
+
+#+begin_src js
+  // list matching
+  var [a, ,b] = [1,2,3];
+  a === 1;
+  b === 3;
+
+  // object matching
+  var { op: a, lhs: { op: b }, rhs: c }
+	 = getASTNode()
+
+  // object matching shorthand
+  // binds `op`, `lhs` and `rhs` in scope
+  var {op, lhs, rhs} = getASTNode()
+
+  // Can be used in parameter position
+  function g({name: x}) {
+    console.log(x);
+  }
+  g({name: 5})
+
+  // Destructuring + defaults arguments
+  function r({x, y, w = 10, h = 10}) {
+    return x + y + w + h;
+  }
+  r({x:1, y:2}) === 23
+#+end_src
+
 ** Default---Rest---Spread
+#+begin_src js
+  // Callee-evaluated default parameter values.
+  function f(x, y=12) {
+    // y is 12 if not passed (or passed as undefined)
+    return x + y;
+  }
+  f(3) == 15
+
+  // rest parameter syntax
+  function f(x, ...y) {
+    // y is an Array
+    return x * y.length;
+  }
+  f(3, "hello", true) == 6
+
+  // spread operator
+  function f(x, y, z) {
+    return x + y + z;
+  }
+  // Pass each elem of array as argument
+  f(...[1,2,3]) == 6
+#+end_src
+
+*** Rest Parameter Syntax
+Rest parameters  have been introduced to  reduce the boilerplate code  that was
+induced by the =arguments=.
+
+The *rest  parameter syntax* allows  one to  represent an indefinite  number of
+arguments as an  array. A function's last parameter can  be prefixed with =...=
+which will cause all remaining (user  supplied) arguments to be placed within a
+"standard" JavaScript array.
+
+There are  three main differences  between rest parameters and  the =arguments=
+object:
+
+1. The =arguments=  object is  not a  real array,  while rest  parameters are
+ =Array= instances,  meaning methods like  ~sort~, ~map~, ~forEach~  or ~pop~
+ can be applied on it directly;
+
+2. The =arguments= object has additional functionality specific to itself (like
+   the =callee= property).
+
+3.  The  =...restParam= bundles all the  extra parameters into a  single array,
+   therefore  it  does  not  contain  any named  argument  defined  before  the
+   =...restParam=, whereas the arguments object  contains all of the parameters
+   --- including all of the stuff in the =...restParam= --- unbundled.
+
+*** Spread Syntax
+*Spread syntax*  (=...=) allows an  /iterable/ such  as an array  expression or
+string to  be expanded  in places  where zero or  more arguments  (for function
+calls) or elements  (for array literals) are expected, or  an object expression
+to  be expanded  in  places where  zero  or more  key-value  pairs (for  object
+literals) are expected.
+
+Spread syntax can be used when all elements  from an object or array need to be
+included in a list of some kind.
+
 ** Let---Const
+Block-scoped  binding   constructs.  ~let~  is   the  new  ~var~.   ~const~  is
+single-assignment. Static restrictions prevent use before assignment.
+
 ** Iterators---For--Of
+Iterator  objects  enable  custom  iteration. Generalize  ~for..in~  to  custom
+iterator-based iteration with ~for..of~.
+
+#+begin_src js
+  let fibonacci = {
+    [Symbol.iterator]() {
+      let pre = 0, cur = 1;
+      return {
+	next() {
+	  [pre, cur] = [cur, pre + cur];
+	  return { done: false, value: cur }
+	}
+      }
+    }
+  }
+
+  for (var n of fibonacci) {
+    // truncate the sequence at 1000
+    if (n > 1000)
+      break;
+    console.log(n);
+  }
+#+end_src
+
+*** for..in
+The ~for...in~ statement iterates over all enumerable properties of an object
+that are keyed by strings (ignoring ones keyed by Symbols), including inherited
+enumerable properties. A ~for...in~ loop iterates over the properties of an
+object in an arbitrary order. ~for...in~ should not be used to iterate over an
+Array where the index order is important.
+
+If you only want to consider properties  attached to the object itself, and not
+its prototypes,
+ - use ~getOwnPropertyNames()~ or
+ - perform  a ~hasOwnProperty()~ check
+ - ~propertyIsEnumerable()~ can also be used
+
+Given that ~for...in~ is built for iterating object properties, not recommended
+for  use   with  arrays,  and  options   like  ~Array.prototype.forEach()~  and
+~for...of~ exist, what might be the use of ~for...in~ at all?
+
+It may be  most practically used for  debugging purposes, being an  easy way to
+check the properties of an object  (by outputting to the console or otherwise).
+
+Although arrays are often more practical  for storing data, in situations where
+a key-value pair is preferred for  working with data (with properties acting as
+the "key"), there may be instances where you want to check if any of those keys
+hold a particular value.
+
+#+begin_src js
+  var obj = {a: 1, b: 2, c: 3};
+
+  for (const prop in obj) {
+    console.log(`obj.${prop} = ${obj[prop]}`);
+  }
+
+  // Output:
+  // "obj.a = 1"
+  // "obj.b = 2"
+  // "obj.c = 3"
+#+end_src
+
+*** for...of Statement
+The  ~for...of~  statement creates  a  loop  iterating over  iterable  objects,
+including:
+ - built-in  String,
+ - Array,
+ - array-like  objects  (e.g., arguments  or NodeList),
+ - TypedArray,
+ - Map,
+ - Set,  and
+ - user-defined  iterables.
+
+It invokes a custom iteration hook with statements to be executed for the value
+of each distinct property of the object.
+
+: for (const [key, value] of iterable) ...
+
+In ~for...of~  loops, abrupt  iteration termination can  be caused  by ~break~,
+~throw~ or ~return~. In these cases, the iterator is closed.
+
+You can also  iterate over *generators*, i.e. functions  generating an iterable
+object.
+
 ** Generators
 ** Comprehensions
 ** Unicode
