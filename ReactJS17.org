@@ -3,8 +3,8 @@
 #+title:Learning ReactJS17
 #+subtitle:{{{version}}} {{{date}}}
 #+author:LOLH
-#+date:2020-12-22 22:53
-#+macro:version Version 0.0.10
+#+date:2020-12-22 23:10
+#+macro:version Version 0.0.11
 #+macro:upload-date (eval (current-time-string))
 #+bucket:pinecone-forest.com
 
@@ -1538,6 +1538,91 @@ JavaScript:
 #+end_src
 
 ** Testing
+* ES2015
+- [[http://www.ecma-international.org/ecma-262/6.0/index.html][ES2015 Standard]]
+** Arrow Functions
+Arrows are a function shorthand using the => syntax.
+
+They support both expression and statement bodies.
+
+Arrows share the same lexical =this= as their surrounding code.
+
+If an arrow  is inside another function, it shares  the "arguments" variable of
+its parent function.
+** Classes
+ES2015 classes are syntactic sugar over the prototype-based OO pattern.
+
+Having a single convenient declarative form makes class patterns easier to use,
+and encourages interoperability.
+
+Classes support
+- prototype-based inheritance,
+- super calls,
+- instance and static methods and
+- constructors.
+
+** Enhanced Object Literals
+Object literals are extended to
+- support setting the prototype at construction,
+  #+begin_src js
+    var obj = {
+      // Sets the prototype.
+      __proto__: theProtoObj
+    }
+  #+end_src
+- shorthand for foo: foo assignments,
+  #+begin_src js
+    var obj = {
+      // Shorthand for ‘handler: handler’
+      handler,
+    }
+  #+end_src
+- defining methods and
+  #+begin_src js
+    var obj = {
+      // Methods
+      toString() {
+	...
+      },
+    }
+  #+end_src
+- making super calls.
+  #+begin_src js
+    var obj = {
+      // Super calls
+      method() {
+	super()
+	...
+      }
+    }
+  #+end_src
+- computed property namnes
+  #+begin_src js
+    var obj = {
+      // // Computed (dynamic) property names
+      [ "prop_" + (() => 42)() ]: 42
+    }
+  #+end_src
+
+** Template Strings
+** Destructuring
+** Default---Rest---Spread
+** Let---Const
+** Iterators---For--Of
+** Generators
+** Comprehensions
+** Unicode
+** Modules
+** Module Loaders
+** Map---Set---WeakMap---WeakSet
+** Proxies
+** Symbols
+** Subclassable Built-ins
+** Math---Number---String---Object APIs
+** Binary and Octal Literals
+** Promises
+** Reflect API
+** Tail Calls
 * Build Tools
 :PROPERTIES:
 :appendix: t
